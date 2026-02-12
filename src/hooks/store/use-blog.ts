@@ -1,5 +1,5 @@
-import { request } from "@/helpers/network";
 import { useAsyncFn, useCounter } from "react-use";
+import { request } from "@/helpers/network";
 import { useInfiniteRequest, useRequest } from "../network";
 
 /**
@@ -8,19 +8,21 @@ import { useInfiniteRequest, useRequest } from "../network";
  * const { isLoading, error, data, hasNextPage } = useBlogs({ page: 1 });
  */
 export const useBlogs = (options?: BlogsParams) => {
-    const { page = 1 } = options ?? {};
-    const { isLoading, error, data } = useRequest<BlogsResp>(`/blogs?page=${page}`);
+	const { page = 1 } = options ?? {};
+	const { isLoading, error, data } = useRequest<BlogsResp>(
+		`/blogs?page=${page}`,
+	);
 
-    const hasPrevPage = data ? page > 1 : false;
-    const hasNextPage = data ? page < data.pages : false;
+	const hasPrevPage = data ? page > 1 : false;
+	const hasNextPage = data ? page < data.totalPages : false;
 
-    return {
-        isLoading,
-        error,
-        data,
-        hasPrevPage,
-        hasNextPage,
-    };
+	return {
+		isLoading,
+		error,
+		data,
+		hasPrevPage,
+		hasNextPage,
+	};
 };
 
 /**
@@ -34,32 +36,34 @@ export const useBlogs = (options?: BlogsParams) => {
  * };
  */
 export const useInfiniteBlogs = () => {
-    const [page, { inc: nextPage }] = useCounter(1);
-    const { isLoading, error, data } = useInfiniteRequest<BlogsResp>(`/blogs?page=${page}`);
-    const isLoadingFirstPage = !data && isLoading;
+	const [page, { inc: nextPage }] = useCounter(1);
+	const { isLoading, error, data } = useInfiniteRequest<BlogsResp>(
+		`/blogs?page=${page}`,
+	);
+	const isLoadingFirstPage = !data && isLoading;
 
-    const latestData = data?.at(-1);
-    const hasNextPage = latestData?.page < latestData?.pages;
+	const latestData = data?.at(-1);
+	const hasNextPage = latestData?.page < latestData?.totalPages;
 
-    const blogs = data ? data.flatMap((pageData) => pageData.data) : [];
+	const blogs = data ? data.flatMap((pageData) => pageData.list) : [];
 
-    return {
-        isLoading,
-        isLoadingFirstPage,
-        error,
-        blogs,
-        hasNextPage,
-        nextPage,
-    };
+	return {
+		isLoading,
+		isLoadingFirstPage,
+		error,
+		blogs,
+		hasNextPage,
+		nextPage,
+	};
 };
 
 /**
  * 获取文章详情
  * @example
- * const { isLoading, error, data } = useBlog(2025, "年度总结2");
+ * const { isLoading, error, data } = useBlog("nian-du-zong-jie-2");
  */
-export const useBlog = (year: number, title: string) => {
-    return useRequest<Blog>(`/blogs/${year}/${title}`);
+export const useBlog = (slug: string) => {
+	return useRequest<Blog>(`/blogs/${slug}`);
 };
 
 /**
@@ -71,20 +75,23 @@ export const useBlog = (year: number, title: string) => {
  * });
  */
 export const useBlogMutation = (year: number, title: string) => {
-    const [{ loading, error }, trigger] = useAsyncFn((data: Partial<BlogMutationBody>) => {
-        return request(`/blogs/${year}/${title}`, {
-            method: "PUT",
-            body: {
-                title,
-                year,
-                ...data,
-            }
-        });
-    }, [year, title]);
+	const [{ loading, error }, trigger] = useAsyncFn(
+		(data: Partial<BlogMutationBody>) => {
+			return request(`/blogs/${year}/${title}`, {
+				method: "PUT",
+				body: {
+					title,
+					year,
+					...data,
+				},
+			});
+		},
+		[year, title],
+	);
 
-    return {
-        trigger,
-        isMutating: loading,
-        error,
-    };
+	return {
+		trigger,
+		isMutating: loading,
+		error,
+	};
 };

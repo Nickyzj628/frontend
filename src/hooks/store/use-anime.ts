@@ -1,5 +1,5 @@
-import { request } from "@/helpers/network";
 import { useAsyncFn, useCounter } from "react-use";
+import { request } from "@/helpers/network";
 import { useInfiniteRequest, useRequest } from "../network";
 
 /**
@@ -8,19 +8,21 @@ import { useInfiniteRequest, useRequest } from "../network";
  * const { isLoading, error, data, hasNextPage } = useAnimes({ page: 1 });
  */
 export const useAnimes = (options?: AnimesParams) => {
-    const { page = 1 } = options ?? {};
-    const { isLoading, error, data } = useRequest<AnimesResp>(`/animes?page=${page}`);
+	const { page = 1 } = options ?? {};
+	const { isLoading, error, data } = useRequest<AnimesResp>(
+		`/animes?page=${page}`,
+	);
 
-    const hasPrevPage = data ? page > 1 : false;
-    const hasNextPage = data ? page < data.pages : false;
+	const hasPrevPage = data ? page > 1 : false;
+	const hasNextPage = data ? page < data.totalPages : false;
 
-    return {
-        isLoading,
-        error,
-        data,
-        hasPrevPage,
-        hasNextPage,
-    };
+	return {
+		isLoading,
+		error,
+		data,
+		hasPrevPage,
+		hasNextPage,
+	};
 };
 
 /**
@@ -34,23 +36,25 @@ export const useAnimes = (options?: AnimesParams) => {
  * };
  */
 export const useInfiniteAnimes = () => {
-    const [page, { inc: nextPage }] = useCounter(1);
-    const { isLoading, error, data } = useInfiniteRequest<AnimesResp>(`/animes?page=${page}`);
-    const isLoadingFirstPage = !data && isLoading;
+	const [page, { inc: nextPage }] = useCounter(1);
+	const { isLoading, error, data } = useInfiniteRequest<AnimesResp>(
+		`/animes?page=${page}`,
+	);
+	const isLoadingFirstPage = !data && isLoading;
 
-    const latestData = data?.at(-1);
-    const hasNextPage = latestData?.page < latestData?.pages;
+	const latestData = data?.at(-1);
+	const hasNextPage = latestData?.page < latestData?.totalPages;
 
-    const animes = data ? data.flatMap((pageData) => pageData.data) : [];
+	const animes = data ? data.flatMap((pageData) => pageData.list) : [];
 
-    return {
-        isLoading,
-        isLoadingFirstPage,
-        error,
-        animes,
-        hasNextPage,
-        nextPage,
-    };
+	return {
+		isLoading,
+		isLoadingFirstPage,
+		error,
+		animes,
+		hasNextPage,
+		nextPage,
+	};
 };
 
 /**
@@ -58,8 +62,8 @@ export const useInfiniteAnimes = () => {
  * @example
  * const { isLoading, error, data } = useAnime("202507", "NUKITASHI");
  */
-export const useAnime = (season: string, title: string) => {
-    return useRequest<Anime>(`/animes/${season}/${title}`);
+export const useAnime = (slug: string) => {
+	return useRequest<Anime>(`/animes/${slug}`);
 };
 
 /**
@@ -71,20 +75,23 @@ export const useAnime = (season: string, title: string) => {
  * });
  */
 export const useAnimeMutation = (season: string, title: string) => {
-    const [{ loading, error }, trigger] = useAsyncFn((data: Partial<AnimeMutationBody>) => {
-        return request(`/animes/${season}/${title}`, {
-            method: "PUT",
-            body: {
-                title,
-                season,
-                ...data,
-            }
-        });
-    }, [season, title]);
+	const [{ loading, error }, trigger] = useAsyncFn(
+		(data: Partial<AnimeMutationBody>) => {
+			return request(`/animes/${season}/${title}`, {
+				method: "PUT",
+				body: {
+					title,
+					season,
+					...data,
+				},
+			});
+		},
+		[season, title],
+	);
 
-    return {
-        trigger,
-        isMutating: loading,
-        error,
-    };
+	return {
+		trigger,
+		isMutating: loading,
+		error,
+	};
 };

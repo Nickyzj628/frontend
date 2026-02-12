@@ -46,9 +46,6 @@ export const request = async <T>(path: string, options: Recordable = {}) => {
     }
 
     const data = await response.json();
-    if (data.statusCode !== 200) {
-        throw new Error(data.message);
-    }
 
     return data as T;
 };

@@ -1,6 +1,10 @@
-import { request } from "@/helpers/network";
+import { fetcher } from "@nickyzj2023/utils";
 import { useEffect, useState } from "preact/hooks";
 import { useAsync } from "react-use";
+import { BACKEND_PORT, BASE_URL } from "@/etc/constants";
+import { request } from "@/helpers/network";
+
+export const api = fetcher(`${BASE_URL}:${BACKEND_PORT}`);
 
 /**
  * 在 react-use/useAsync 基础上封装的请求 hook，和 useSWR 拥有一样的 API
@@ -8,17 +12,17 @@ import { useAsync } from "react-use";
  * const { isLoading, error, data } = useRequest<AnimesResp>("/animes?page=1");
  */
 export const useRequest = <T>(path: string, options: Recordable = {}) => {
-    const {
-        loading: isLoading,
-        error,
-        value: data,
-    } = useAsync(() => request<T>(path, options), [path]);
+	const {
+		loading: isLoading,
+		error,
+		value: data,
+	} = useAsync(() => api.get<T>(path, options), [path]);
 
-    return {
-        isLoading,
-        error,
-        data,
-    };
+	return {
+		isLoading,
+		error,
+		data,
+	};
 };
 
 /**
@@ -28,23 +32,26 @@ export const useRequest = <T>(path: string, options: Recordable = {}) => {
  * const { isLoading, error, data } = useInfiniteRequest<AnimesResp>(`/animes?page=${page}`);
  * useInterval(() => nextPage(), 1000);
  */
-export const useInfiniteRequest = <T>(path: string, options: Recordable = {}) => {
-    const {
-        loading: isLoading,
-        error,
-        value: data,
-    } = useAsync(() => request<T>(path, options), [path]);
+export const useInfiniteRequest = <T>(
+	path: string,
+	options: Recordable = {},
+) => {
+	const {
+		loading: isLoading,
+		error,
+		value: data,
+	} = useAsync(() => api.get<T>(path, options), [path]);
 
-    const [infiniteData, setInfiniteData] = useState<T[]>([]);
-    useEffect(() => {
-        if (data) {
-            setInfiniteData((prevData) => [...prevData, data]);
-        }
-    }, [data]);
+	const [infiniteData, setInfiniteData] = useState<T[]>([]);
+	useEffect(() => {
+		if (data) {
+			setInfiniteData((prevData) => [...prevData, data]);
+		}
+	}, [data]);
 
-    return {
-        isLoading,
-        error,
-        data: infiniteData,
-    };
+	return {
+		isLoading,
+		error,
+		data: infiniteData,
+	};
 };
