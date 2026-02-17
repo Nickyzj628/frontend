@@ -34,33 +34,29 @@ const Page = () => {
 			return [];
 		}
 
-		const headers = data.html.match(/<h\d.*>.*<\/h\d>/g);
-		if (!headers) {
-			return [];
-		}
-
-		const ids = headers
-			.map((header) => {
-				return header.match(/(?<=id=").+(?=">)/)?.[0];
-			})
-			.filter((id) => !!id);
-		if (ids.length !== headers.length) {
-			return [];
-		}
-
-		const levels = headers.map((header) => Number(header[2]));
-		const baseLevel = Math.min(...levels);
-
-		return headers.map((header, i) => {
-			const level = levels[i];
-			const id = ids[i];
-
+		const headerElements = data.html.match(/<h\d id="[^"]+">.*?<\/h\d>/g);
+		const headers = headerElements.map((element) => {
+			const levelMatch = element.match(/<h(\d)/);
+			const idMatch = element.match(/id="([^"]+)"/);
+			const textMatch = element.match(/>([^<]+)<\/h\d>/);
 			return {
-				id,
-				text: header.slice(10 + id.length, -5),
-				style: { marginLeft: (level - baseLevel) * 12 },
+				element,
+				level: Number(levelMatch[1]),
+				id: idMatch[1],
+				text: textMatch[1],
 			};
 		});
+
+		if (!headers.length) {
+			return [];
+		}
+
+		const baseLevel = Math.min(...headers.map((header) => header.level));
+		return headers.map(({ level, id, text }, i) => ({
+			id,
+			text,
+			style: { marginLeft: (level - baseLevel) * 12 },
+		}));
 	}, [data]);
 
 	// 锚点跳转
