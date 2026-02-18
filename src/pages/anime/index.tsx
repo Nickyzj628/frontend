@@ -29,7 +29,7 @@ const Page = () => {
 	// 获取番剧详情
 	const { data, error, isLoading } = useAnime(slug);
 	useEffect(() => {
-		if (data?.title) {
+		if (data && "title" in data) {
 			setTitle(data.title);
 		}
 	}, [data]);

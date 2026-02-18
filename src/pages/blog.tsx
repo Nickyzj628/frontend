@@ -22,7 +22,9 @@ const Page = () => {
 
 	const { isLoading, error, data } = useBlog(slug);
 	useEffect(() => {
-		setTitle(data?.title ?? "加载中");
+		if (data && "title" in data) {
+			setTitle(data.title);
+		}
 	}, [data]);
 
 	// 生成目录

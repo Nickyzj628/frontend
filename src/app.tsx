@@ -17,6 +17,7 @@ import Alert, { type AlertType } from "./components/alert";
 import Avatar from "./components/avatar";
 import Button from "./components/button";
 import Loading from "./components/loading";
+import TitleUpdater from "./components/title-updater";
 import Toggle from "./components/toggle";
 
 dayjs.locale("zh-cn");
@@ -342,6 +343,7 @@ const Toaster = () => {
 const App = () => {
 	return (
 		<>
+			<TitleUpdater />
 			<div className="flex flex-col gap-3 min-h-screen p-3">
 				<Header />
 				<div className="flex flex-1 gap-3">
