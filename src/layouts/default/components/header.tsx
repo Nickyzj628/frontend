@@ -1,6 +1,6 @@
 import { throttle } from "@nickyzj2023/utils";
 import { useEffect, useState } from "preact/hooks";
-import toast from "react-hot-toast";
+import toast from "react-hot-toast/headless";
 import { Link, useRoute } from "wouter-preact";
 import Avatar from "@/components/avatar";
 import Button from "@/components/button";
@@ -12,12 +12,13 @@ import useUser from "@/hooks/store/use-user";
 
 const Header = () => {
 	/**
-	 * 顶栏滚动自动收起
+	 * 滚动自动收起顶栏
 	 */
 
 	const [isHeaderVisible, setIsHeaderVisible] = useState(false);
 	useEffect(() => {
 		let prevScrollY = 0;
+
 		const onScroll = throttle(() => {
 			setIsHeaderVisible(window.scrollY < prevScrollY);
 			prevScrollY = window.scrollY;
@@ -30,7 +31,7 @@ const Header = () => {
 	}, []);
 
 	/**
-	 * 移动端点击拉起路由表
+	 * 移动端点击打开菜单
 	 */
 
 	const isMobile = useIsMobile();

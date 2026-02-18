@@ -1,8 +1,8 @@
 import { Suspense } from "preact/compat";
+import CustomToaster from "@/components/custom-toaster";
 import Loading from "@/components/loading";
 import Router from "@/components/router";
 import TitleUpdater from "@/components/title-updater";
-import Toaster from "@/components/toaster";
 import Aside from "./components/aside";
 import Footer from "./components/footer";
 import Header from "./components/header";
@@ -23,7 +23,7 @@ const DefaultLayout = () => {
 				</div>
 				<Footer />
 			</div>
-			<Toaster />
+			<CustomToaster />
 		</>
 	);
 };
